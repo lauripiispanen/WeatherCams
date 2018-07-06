@@ -1,7 +1,8 @@
-import React from 'react';
-import { View } from 'react-native';
-import MainMap from './MainMap';
-import CameraView from './CameraView';
+import React from 'react'
+import { View } from 'react-native'
+import MainMap from './MainMap'
+import CameraView from './CameraView'
+import RootState, { SelectedCamera } from '../model/RootState'
 
 export default class RootView extends React.Component {
     constructor(props) {
@@ -16,11 +17,12 @@ export default class RootView extends React.Component {
                 <View style={styles.mapView}>
                   <MainMap
                       cameraData={this.state.cameraData}
-                      onCameraSelected={(selectedCamera) => 
-                        this.setState({
-                          selectedCamera
-                        })
-                      }
+                      onCameraSelected={(selectedCamera) => {
+                        SelectedCamera.next(selectedCamera);
+                          this.setState({
+                            selectedCamera
+                          })
+                        }}
                       />
                 </View>
                 {
@@ -33,44 +35,19 @@ export default class RootView extends React.Component {
               </View>;
     }
     componentDidMount() {
-      return fetch("https://tie.digitraffic.fi/api/v1/metadata/camera-stations?lastUpdated=false")
-              .then((r) => r.json())
-              .then(mapCameraData)
-              .then((cameraData) => {
-                this.setState({
-                  cameraData,
-                  selectedCamera: cameraData[1]
-                })
-              })
+      RootState.subscribe((state) => this.setState(state))
     }
+}
+
+const styles = {
+  container: {
+    flex: 1
+  },
+  mapView: {
+    flex: 2
+  },
+  cameraView: {
+    flex: 1,
+    backgroundColor: 'steelblue'
   }
-  
-  const styles = {
-    container: {
-      flex: 1
-    },
-    mapView: {
-      flex: 2
-    },
-    cameraView: {
-      flex: 1,
-      backgroundColor: 'steelblue'
-    }
-  }
-  
-  function mapCameraData(rawCameraData) {
-    return rawCameraData.features.map(extractSingleCamera).filter((i) => i !== null)
-  }
-  
-  function extractSingleCamera(featureInfo) {
-    if (featureInfo.properties === null || featureInfo.geometry === null) {
-      return null
-    }
-    return {
-      coordinates: featureInfo.geometry.coordinates,
-      name: featureInfo.properties.name,
-      id: featureInfo.id,
-      names: featureInfo.properties.names,
-      presets: featureInfo.properties.presets
-    }
-  }
+}
