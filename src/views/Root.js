@@ -2,27 +2,27 @@ import React from 'react'
 import { View } from 'react-native'
 import MainMap from './MainMap'
 import CameraView from './CameraView'
-import RootState, { SelectedCamera } from '../model/RootState'
+import RootState, { SelectedCamera, INITIAL_STATE } from '../model/RootState'
 
 export default class RootView extends React.Component {
     constructor(props) {
       super(props)
-      this.state = {
-        cameraData: [],
-        selectedCamera: null
-      }
+      this.state = INITIAL_STATE
     }
     render() {
       return <View style={styles.container}>
                 <View style={styles.mapView}>
                   <MainMap
                       cameraData={this.state.cameraData}
+                      region={this.state.mapRegion}
                       onCameraSelected={(selectedCamera) => {
                         SelectedCamera.next(selectedCamera);
-                          this.setState({
-                            selectedCamera
-                          })
-                        }}
+                      }}
+                      onCameraDeselected={() => {
+                        this.setState({
+                          selectedCamera: null
+                        })
+                      }}
                       />
                 </View>
                 {
@@ -35,7 +35,7 @@ export default class RootView extends React.Component {
               </View>;
     }
     componentDidMount() {
-      RootState.subscribe((state) => this.setState(state))
+      RootState.subscribe(this.setState.bind(this))
     }
 }
 
