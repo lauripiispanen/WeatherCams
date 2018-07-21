@@ -44,10 +44,10 @@ const styles = {
     flex: 1
   },
   mapView: {
-    flex: 2
+    flex: 1
   },
   cameraView: {
-    flex: 1,
+    flex: 3,
     backgroundColor: 'steelblue'
   }
 }
