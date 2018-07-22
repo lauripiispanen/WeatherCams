@@ -30,6 +30,12 @@
         "semi": [
             "error",
             "never"
+        ],
+        "react/jsx-uses-vars": [
+            2
         ]
+    },
+    "globals": {
+	"fetch": false
     }
 }
