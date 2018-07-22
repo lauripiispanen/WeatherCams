@@ -1,11 +1,10 @@
-import { Subject, Observable, combineLatest, merge, from } from 'rxjs'
+import { Subject, combineLatest, merge, from } from 'rxjs'
 import { switchMap, map, startWith, withLatestFrom, filter, pluck } from 'rxjs/operators'
 
 import { fetchWeatherData } from './WeatherData'
 
 export default function(
-  TrafficApi,
-  WeatherApi
+  TrafficApi
 ) {
   const SelectedCamera = new Subject()
 
@@ -17,22 +16,23 @@ export default function(
   )
 
   const NearestWeatherStation = SelectedCamera.pipe(
-    filter((camera) => camera !== undefined),
+    filter((camera) => camera != null),
     pluck('nearestWeatherStationId')
   )
 
   const CurrentWeather = merge(
     NearestWeatherStation.pipe(
-      filter((id) => id !== undefined),
+      filter((id) => id != null),
       switchMap(fetchWeatherData)
     ),
     NearestWeatherStation.pipe(
-      filter((id) => id === undefined),
+      filter((id) => id == null),
       map(() => null)
     )
   )
 
   const MapRegion = SelectedCameraData.pipe(
+    filter((camera) => camera != null),
     map((data) => {
       const [ longitude, latitude ] = data.coordinates
       return {
@@ -54,7 +54,7 @@ export default function(
       currentWeather,
       selectedCamera,
       mapRegion
-  })).pipe(startWith(INITIAL_STATE))
+    })).pipe(startWith(INITIAL_STATE))
 
   return {
     RootState,
@@ -74,8 +74,4 @@ export const INITIAL_STATE = {
   currentWeather: null,
   selectedCamera: null,
   mapRegion: DEFAULT_MAP_REGION
-}
-
-function log(stream) {
-  stream.subscribe(console.log.bind(console))
 }
